@@ -8,6 +8,8 @@ gem "csv"
 gem "pg", "~> 1.5"
 gem "rake"
 gem "roo", "~> 2.10"
+gem "countries"
+gem "phonelib"
 
 group :development, :test do
   gem "pry"

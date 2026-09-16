@@ -1,6 +1,6 @@
 class Customer::Import::Cavegest::Address
   N = Importer::Normalization
-  COMPARED_ATTRIBUTES = %i[address1 zip city country_code].freeze
+  COMPARED_ATTRIBUTES = %i[address1 zip city].freeze
 
   def initialize(row, indexes)
     @row = row
@@ -22,9 +22,9 @@ class Customer::Import::Cavegest::Address
     @billing_address ||=
       {
         address1: N.text(row[indexes.address1]),
-        zip: N.zip(row[indexes.zip], N.country_code(row[indexes.country_code])),
+        zip: N.zip(row[indexes.zip], country_code),
         city: N.text(row[indexes.city]),
-        country_code: N.country_code(row[indexes.country_code])
+        country_code: country_code
       }
   end
 
@@ -35,10 +35,10 @@ class Customer::Import::Cavegest::Address
         shipping_first_name: N.text(row[indexes.shipping_first_name]),
         shipping_company_name: N.text(row[indexes.shipping_company_name]),
         shipping_address1: N.text(row[indexes.shipping_address1]),
-        shipping_zip: N.zip(row[indexes.shipping_zip], N.country_code(row[indexes.shipping_country_code])),
+        shipping_zip: N.zip(row[indexes.shipping_zip], country_code(billing: false)),
         shipping_city: N.text(row[indexes.shipping_city]),
-        shipping_country_code: N.country_code(row[indexes.shipping_country_code]),
-        shipping_phone: N.text(row[indexes.shipping_phone])
+        shipping_country_code: country_code(billing: false),
+        shipping_phone: N.phone(row[indexes.shipping_phone], country_code(billing: false))
       }
   end
 
@@ -55,5 +55,13 @@ class Customer::Import::Cavegest::Address
       COMPARED_ATTRIBUTES.all? do |attribute|
         billing_address[attribute] == shipping_address[:"shipping_#{attribute}"]
       end
+  end
+
+  def country_code(billing: true)
+    if billing
+      @country_code_billing ||= N.country_code(row[indexes.country_code])
+    else
+      @country_code_shipping ||= N.country_code(row[indexes.shipping_country_code])
+    end
   end
 end

@@ -7,6 +7,8 @@ require "fileutils"
 require "logger"
 require "roo"
 require "set"
+require "countries"
+require "phonelib"
 
 APP_ROOT = File.expand_path("..", __dir__)
 DATA_DIR = File.join(APP_ROOT, "data")
@@ -29,3 +31,7 @@ end
 end
 
 Dir[File.join(APP_ROOT, "app", "services", "**", "*.rb")].sort.each { |file| require file }
+
+ISO3166.configure do |config|
+  config.locales = [:en, :fr]
+end

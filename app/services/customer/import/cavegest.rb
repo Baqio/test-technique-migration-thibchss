@@ -15,18 +15,20 @@ class Customer::Import::Cavegest < Importer::Base
       next if row[indexes.reference] == 'TOTAL' || row.all?(&:blank?)
       
       customers << Customer.new(
-        reference:         N.text(row[indexes.reference]),
-        last_name:         N.text(row[indexes.last_name]),
-        first_name:        N.text(row[indexes.first_name]),
-        company_name:      company_name(row),
-        email:             row[indexes.email].to_s,
-        phone:             row[indexes.phone].to_s,
-        mobile:            row[indexes.mobile].to_s,
-        kind:              KINDS[N.text(row[indexes.kind])],
-        customer_category: N.text(row[indexes.customer_category]),
-        price_grid_code:   N.text(row[indexes.price_grid_code]),
-        vat_number:        N.text(row[indexes.vat_number]),
-        excise_number:     N.text(row[indexes.excise_number]),
+        reference: N.text(row[indexes.reference]),
+        last_name: N.text(row[indexes.last_name]),
+        first_name: N.text(row[indexes.first_name]),
+        company_name: company_name(row),
+        email: N.text(row[indexes.email]),
+        phone: N.phone(row[indexes.phone], N.country_code(row[indexes.country_code])),
+        mobile: N.phone(row[indexes.mobile], N.country_code(row[indexes.country_code])),
+        kind: KINDS[N.text(row[indexes.kind])],
+        customer_category: N.text(row[indexes.customer_category]).upcase,
+        price_grid_code: N.text(row[indexes.price_grid_code]),
+        vat_number: N.tax_number(row[indexes.vat_number]),
+        excise_number: N.tax_number(row[indexes.excise_number]),
+        creation_date: N.text(row[indexes.creation_date])&.to_date,
+        active: N.text(row[indexes.active]).to_i.zero?,
         **Customer::Import::Cavegest::Address.new(row, indexes).call
       )
     end

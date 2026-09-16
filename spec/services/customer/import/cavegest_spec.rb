@@ -25,4 +25,20 @@ RSpec.describe Customer::Import::Cavegest do
     expect(customer.shipping_address1).to be_nil
     expect(customer.shipping_zip).to be_nil
   end
+
+  it "stores the proper country_code when there is a country written" do
+    customer = Customer.find_by(reference: "T02756")
+
+    expect(customer.country_code).to eq('DE')
+  end
+
+  it "stores the phone number with its country_code" do
+    deutsch_customer = Customer.find_by(reference: "T02756")
+    belgian_customer = Customer.find_by(reference: "T01205")
+    french_customer = Customer.find_by(reference: "T00141")
+
+    expect(deutsch_customer.phone).to eq("+49556174676")
+    expect(belgian_customer.phone).to eq("+32272111757")
+    expect(french_customer.phone).to eq("+33466824417")
+  end
 end

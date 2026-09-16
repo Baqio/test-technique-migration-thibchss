@@ -16,10 +16,33 @@ module Importer::Normalization
   end
 
   def country_code(value)
-    text(value)&.first(2)&.upcase
+    value = text(value)&.downcase
+
+    return nil if value.blank?
+    return value.upcase if value.size == 2
+
+    @country_codes ||= {}
+    @country_codes[value] ||= ISO3166::Country.find_country_by_any_name(value)
+
+    @country_codes[value].alpha2
   end
 
   def decimal(value)
     value.to_s.to_f
+  end
+
+  def phone(value, country_code)
+    value = text(value)
+
+    return nil if value.blank?
+
+    phone_number = Phonelib.parse(value, country_code ||= "FR").full_e164
+    return nil if phone_number.blank?
+
+    phone_number
+  end
+
+  def tax_number(value)
+    text(value)&.delete(' ')
   end
 end
