@@ -25,4 +25,10 @@ RSpec.describe Customer::Import::Cavegest do
     expect(customer.shipping_address1).to be_nil
     expect(customer.shipping_zip).to be_nil
   end
+
+  it "stores the proper country_code when there is a country written" do
+    customer = Customer.find_by(reference: "T02756")
+
+    expect(customer.country_code).to eq('DE')
+  end
 end
