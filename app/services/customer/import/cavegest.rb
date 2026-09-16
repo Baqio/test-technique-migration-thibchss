@@ -1,31 +1,33 @@
 class Customer::Import::Cavegest < Importer::Base
   N = Importer::Normalization
 
-  KINDS = { "C" => "customer", "F" => "supplier", "P" => "prospect", "R" => "reseller"}.freeze
+  KINDS = { 
+    "C" => "customer", 
+    "F" => "supplier", 
+    "P" => "prospect", 
+    "R" => "reseller"
+  }.freeze
 
   def call
     customers = []
 
     sheet.parse.each do |row|
-      next if row[0] == 'TOTAL' || row.all?(&:blank?)
+      next if row[indexes.reference] == 'TOTAL' || row.all?(&:blank?)
       
       customers << Customer.new(
-        reference:         N.text(row[0]),
-        last_name:         N.text(row[1]),
-        first_name:        N.text(row[2]),
-        company_name:      N.text(row[3]).blank? ? N.text(row[2]) : N.text(row[3]),
-        address1:          N.text(row[4]),
-        zip:               N.zip(row[5], N.country_code(row[7])),
-        city:              N.text(row[6]),
-        country_code:      N.country_code(row[7]),
-        email:             row[8].to_s,
-        phone:             row[9].to_s,
-        mobile:            row[10].to_s,
-        kind:              KINDS[N.text(row[19])],
-        customer_category: N.text(row[20]),
-        price_grid_code:   N.text(row[21]),
-        vat_number:        N.text(row[23]),
-        excise_number:     N.text(row[24])
+        reference:         N.text(row[indexes.reference]),
+        last_name:         N.text(row[indexes.last_name]),
+        first_name:        N.text(row[indexes.first_name]),
+        company_name:      company_name(row),
+        email:             row[indexes.email].to_s,
+        phone:             row[indexes.phone].to_s,
+        mobile:            row[indexes.mobile].to_s,
+        kind:              KINDS[N.text(row[indexes.kind])],
+        customer_category: N.text(row[indexes.customer_category]),
+        price_grid_code:   N.text(row[indexes.price_grid_code]),
+        vat_number:        N.text(row[indexes.vat_number]),
+        excise_number:     N.text(row[indexes.excise_number]),
+        **Customer::Import::Cavegest::Address.new(row, indexes).call
       )
     end
 
@@ -49,5 +51,17 @@ class Customer::Import::Cavegest < Importer::Base
 
   def sheet
     @sheet ||= Roo::Excelx.new(path).sheet(0)
+  end
+
+  def indexes
+    @indexes ||= Customer::Import::Cavegest::Row.indexes
+  end
+
+  def company_name(row)
+    if N.text(row[indexes.company_name]).blank?
+      "#{N.text(row[indexes.first_name])} #{N.text(row[indexes.last_name])}"
+    else
+      N.text(row[indexes.company_name])
+    end
   end
 end
