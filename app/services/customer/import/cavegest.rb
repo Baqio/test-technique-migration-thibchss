@@ -19,10 +19,6 @@ class Customer::Import::Cavegest < Importer::Base
         last_name:         N.text(row[indexes.last_name]),
         first_name:        N.text(row[indexes.first_name]),
         company_name:      company_name(row),
-        address1:          N.text(row[indexes.address1]),
-        zip:               N.zip(row[indexes.zip], N.country_code(row[indexes.country_code])),
-        city:              N.text(row[indexes.city]),
-        country_code:      N.country_code(row[indexes.country_code]),
         email:             row[indexes.email].to_s,
         phone:             row[indexes.phone].to_s,
         mobile:            row[indexes.mobile].to_s,
@@ -30,7 +26,8 @@ class Customer::Import::Cavegest < Importer::Base
         customer_category: N.text(row[indexes.customer_category]),
         price_grid_code:   N.text(row[indexes.price_grid_code]),
         vat_number:        N.text(row[indexes.vat_number]),
-        excise_number:     N.text(row[indexes.excise_number])
+        excise_number:     N.text(row[indexes.excise_number]),
+        **Customer::Import::Cavegest::Address.new(row, indexes).call
       )
     end
 
