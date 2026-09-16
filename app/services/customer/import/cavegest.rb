@@ -7,6 +7,8 @@ class Customer::Import::Cavegest < Importer::Base
     customers = []
 
     sheet.parse.each do |row|
+      next if row[0] == 'TOTAL' || row.all?(&:blank?)
+      
       customers << Customer.new(
         reference:         N.text(row[0]),
         first_name:        N.text(row[1]),
