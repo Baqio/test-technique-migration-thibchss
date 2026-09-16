@@ -12,7 +12,7 @@ module Importer::Normalization
   end
 
   def country_code(value)
-    value.to_s.strip[0, 2].upcase
+    text(value)&.first(2)&.upcase
   end
 
   def decimal(value)
