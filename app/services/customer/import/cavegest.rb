@@ -15,18 +15,18 @@ class Customer::Import::Cavegest < Importer::Base
       next if row[indexes.reference] == 'TOTAL' || row.all?(&:blank?)
       
       customers << Customer.new(
-        reference:         N.text(row[indexes.reference]),
-        last_name:         N.text(row[indexes.last_name]),
-        first_name:        N.text(row[indexes.first_name]),
-        company_name:      company_name(row),
-        email:             row[indexes.email].to_s,
-        phone:             row[indexes.phone].to_s,
-        mobile:            row[indexes.mobile].to_s,
-        kind:              KINDS[N.text(row[indexes.kind])],
+        reference: N.text(row[indexes.reference]),
+        last_name: N.text(row[indexes.last_name]),
+        first_name: N.text(row[indexes.first_name]),
+        company_name: company_name(row),
+        email: row[indexes.email].to_s,
+        phone: row[indexes.phone].to_s,
+        mobile: row[indexes.mobile].to_s,
+        kind: KINDS[N.text(row[indexes.kind])],
         customer_category: N.text(row[indexes.customer_category]),
-        price_grid_code:   N.text(row[indexes.price_grid_code]),
-        vat_number:        N.text(row[indexes.vat_number]),
-        excise_number:     N.text(row[indexes.excise_number]),
+        price_grid_code: N.text(row[indexes.price_grid_code]),
+        vat_number: N.text(row[indexes.vat_number]),
+        excise_number: N.text(row[indexes.excise_number]),
         **Customer::Import::Cavegest::Address.new(row, indexes).call
       )
     end
