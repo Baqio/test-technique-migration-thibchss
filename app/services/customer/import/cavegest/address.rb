@@ -1,6 +1,6 @@
 class Customer::Import::Cavegest::Address
   N = Importer::Normalization
-  COMPARED_ATTRIBUTES = %i[address1 zip city country_code].freeze
+  COMPARED_ATTRIBUTES = %i[address1 zip city].freeze
 
   def initialize(row, indexes)
     @row = row
