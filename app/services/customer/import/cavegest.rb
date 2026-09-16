@@ -1,7 +1,7 @@
 class Customer::Import::Cavegest < Importer::Base
   N = Importer::Normalization
 
-  KINDS = { "C" => "customer", "F" => "supplier", "P" => "prospect" }.freeze
+  KINDS = { "C" => "customer", "F" => "supplier", "P" => "prospect", "R" => "reseller"}.freeze
 
   def call
     imported = 0
