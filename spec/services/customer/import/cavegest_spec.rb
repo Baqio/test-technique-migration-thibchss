@@ -17,4 +17,12 @@ RSpec.describe Customer::Import::Cavegest do
     expect(customer.zip).to eq("04000")
     expect(customer.shipping_zip).to eq("11100")
   end
+
+  it "doesn't store the shipping address when it's the same as the billing one" do
+    customer = Customer.find_by(reference: "T00004")
+
+    expect(customer.use_billing_address).to eq(true)
+    expect(customer.shipping_address1).to be_nil
+    expect(customer.shipping_zip).to be_nil
+  end
 end
