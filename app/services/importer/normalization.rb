@@ -12,6 +12,7 @@ module Importer::Normalization
     return nil if value.blank?
     
     value.prepend('0') if value.size == 4 && _country_code == "FR"
+    value
   end
 
   def country_code(value)
