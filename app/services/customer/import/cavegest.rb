@@ -4,32 +4,43 @@ class Customer::Import::Cavegest < Importer::Base
   KINDS = { "C" => "customer", "F" => "supplier", "P" => "prospect", "R" => "reseller"}.freeze
 
   def call
-    imported = 0
+    customers = []
 
-    sheet.parse(headers: true).drop(1).each do |row|
-      Customer.create!(
-        reference:         N.text(row["Code"]),
-        company_name:      N.text(row["Libellé"]),
-        first_name:        N.text(row["Prénom"]),
-        last_name:         N.text(row["Nom"]),
-        address1:          N.text(row["Adresse"]),
-        city:              N.text(row["Ville"]),
-        zip:               N.zip(row["Code postal"]),
-        country_code:      row["Pays"],
-        phone:             row["Téléphone 1"].to_s,
-        mobile:            row["Téléphone 2"].to_s,
-        email:             row["EMail"].to_s,
-        kind:              KINDS[N.text(row["Code famille client"])],
-        customer_category: N.text(row["Libellé famille client"]),
-        price_grid_code:   N.text(row["Code categ tarif"]),
-        vat_number:        N.text(row["Numéro de TVA"]),
-        excise_number:     N.text(row["Numéro d Accise"])
+    sheet.parse.each do |row|
+      customers << Customer.new(
+        reference:         N.text(row[0]),
+        first_name:        N.text(row[1]),
+        last_name:         N.text(row[2]),
+        company_name:      N.text(row[3]).blank? ? N.text(row[2]) : N.text(row[3]),
+        address1:          N.text(row[4]),
+        zip:               N.zip(row[5], N.country_code(row[7])),
+        city:              N.text(row[6]),
+        country_code:      N.country_code(row[7]),
+        email:             row[8].to_s,
+        phone:             row[9].to_s,
+        mobile:            row[10].to_s,
+        kind:              KINDS[N.text(row[19])],
+        customer_category: N.text(row[20]),
+        price_grid_code:   N.text(row[21]),
+        vat_number:        N.text(row[23]),
+        excise_number:     N.text(row[24])
       )
+    end
 
-      imported += 1
+    imported = 0
+    not_imported = []
+
+    customers.each do |customer|
+      if customer.valid?
+        customer.save!
+        imported += 1
+      else
+        not_imported << customer
+      end
     end
 
     puts "#{imported} clients importés"
+    puts "#{not_imported.size} clients non importés"
   end
 
   private
