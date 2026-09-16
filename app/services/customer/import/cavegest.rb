@@ -25,8 +25,8 @@ class Customer::Import::Cavegest < Importer::Base
         kind: KINDS[N.text(row[indexes.kind])],
         customer_category: N.text(row[indexes.customer_category]),
         price_grid_code: N.text(row[indexes.price_grid_code]),
-        vat_number: N.text(row[indexes.vat_number]),
-        excise_number: N.text(row[indexes.excise_number]),
+        vat_number: N.tax_number(row[indexes.vat_number]),
+        excise_number: N.tax_number(row[indexes.excise_number]),
         creation_date: N.text(row[indexes.creation_date])&.to_date,
         active: N.text(row[indexes.active]).to_i.zero?,
         **Customer::Import::Cavegest::Address.new(row, indexes).call

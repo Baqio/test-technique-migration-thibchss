@@ -41,4 +41,8 @@ module Importer::Normalization
 
     phone_number
   end
+
+  def tax_number(value)
+    text(value)&.delete(' ')
+  end
 end
