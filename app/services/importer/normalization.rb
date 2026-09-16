@@ -8,11 +8,15 @@ module Importer::Normalization
   end
 
   def zip(value, _country_code = "FR")
-    value.to_s.strip
+    value = text(value)
+    return nil if value.blank?
+    
+    value.prepend('0') if value.size == 4 && _country_code == "FR"
+    value
   end
 
   def country_code(value)
-    value.to_s.strip[0, 2].upcase
+    text(value)&.first(2)&.upcase
   end
 
   def decimal(value)
