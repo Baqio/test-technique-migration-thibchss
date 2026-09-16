@@ -11,8 +11,8 @@ class Customer::Import::Cavegest < Importer::Base
       
       customers << Customer.new(
         reference:         N.text(row[0]),
-        first_name:        N.text(row[1]),
-        last_name:         N.text(row[2]),
+        last_name:         N.text(row[1]),
+        first_name:        N.text(row[2]),
         company_name:      N.text(row[3]).blank? ? N.text(row[2]) : N.text(row[3]),
         address1:          N.text(row[4]),
         zip:               N.zip(row[5], N.country_code(row[7])),
