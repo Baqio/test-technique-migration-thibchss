@@ -59,6 +59,7 @@ GEM
     pg (1.6.3-x86_64-darwin)
     pg (1.6.3-x86_64-linux)
     pg (1.6.3-x86_64-linux-musl)
+    phonelib (0.10.27)
     pry (0.16.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -108,6 +109,7 @@ DEPENDENCIES
   countries
   csv
   pg (~> 1.5)
+  phonelib
   pry
   rake
   roo (~> 2.10)
