@@ -23,7 +23,7 @@ class Customer::Import::Cavegest < Importer::Base
         phone: N.phone(row[indexes.phone], N.country_code(row[indexes.country_code])),
         mobile: N.phone(row[indexes.mobile], N.country_code(row[indexes.country_code])),
         kind: KINDS[N.text(row[indexes.kind])],
-        customer_category: N.text(row[indexes.customer_category]),
+        customer_category: N.text(row[indexes.customer_category]).upcase,
         price_grid_code: N.text(row[indexes.price_grid_code]),
         vat_number: N.tax_number(row[indexes.vat_number]),
         excise_number: N.tax_number(row[indexes.excise_number]),
