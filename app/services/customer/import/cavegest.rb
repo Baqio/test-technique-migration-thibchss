@@ -18,7 +18,7 @@ class Customer::Import::Cavegest < Importer::Base
         reference:         N.text(row[indexes.reference]),
         last_name:         N.text(row[indexes.last_name]),
         first_name:        N.text(row[indexes.first_name]),
-        company_name:      N.text(row[indexes.company_name]).blank? ? N.text(row[indexes.last_name]) : N.text(row[indexes.company_name]),
+        company_name:      company_name(row),
         address1:          N.text(row[indexes.address1]),
         zip:               N.zip(row[indexes.zip], N.country_code(row[indexes.country_code])),
         city:              N.text(row[indexes.city]),
@@ -58,5 +58,13 @@ class Customer::Import::Cavegest < Importer::Base
 
   def indexes
     @indexes ||= Customer::Import::Cavegest::Row.indexes
+  end
+
+  def company_name(row)
+    if N.text(row[indexes.company_name]).blank?
+      "#{N.text(row[indexes.first_name])} #{N.text(row[indexes.last_name])}"
+    else
+      N.text(row[indexes.company_name])
+    end
   end
 end
