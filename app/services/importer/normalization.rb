@@ -16,7 +16,15 @@ module Importer::Normalization
   end
 
   def country_code(value)
-    text(value)&.first(2)&.upcase
+    value = text(value)&.downcase
+
+    return nil if value.blank?
+    return value.upcase if value.size == 2
+
+    @country_codes ||= {}
+    @country_codes[value] ||= ISO3166::Country.find_country_by_any_name(value)
+
+    @country_codes[value].alpha2
   end
 
   def decimal(value)
