@@ -9,7 +9,7 @@ class ProductPrice::Import::Cavegest < Importer::Base
 
     CSV.parse(clean_csv, headers: true, col_sep: COLUMN_SEP).each do |row|
       reference = N.text(row["Ref"])
-      next if reference.nil?
+      next if should_skip?(reference)
 
       product = Product.create!(
         reference: reference,
@@ -57,5 +57,11 @@ class ProductPrice::Import::Cavegest < Importer::Base
     headers_index = lines.index { |line| line.match?(/\ARef\b/)}
 
     lines[headers_index..].join
+  end
+
+  def should_skip?(reference)
+    reference.nil? ||
+      reference.start_with?('---') ||
+        reference.include?('TOTAL')
   end
 end
