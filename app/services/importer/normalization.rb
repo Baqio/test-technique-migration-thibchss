@@ -8,7 +8,9 @@ module Importer::Normalization
   end
 
   def zip(value, _country_code = "FR")
-    value.to_s.strip
+    value = text(value)
+    
+    value.prepend('0') if value.size == 4 && _country_code == "FR"
   end
 
   def country_code(value)
