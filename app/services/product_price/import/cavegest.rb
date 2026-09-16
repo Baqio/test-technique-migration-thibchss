@@ -7,7 +7,7 @@ class ProductPrice::Import::Cavegest < Importer::Base
   def call
     imported = 0
 
-    CSV.parse(File.read(path), headers: true, col_sep: COLUMN_SEP).each do |row|
+    CSV.parse(clean_csv, headers: true, col_sep: COLUMN_SEP).each do |row|
       reference = N.text(row["Ref"])
       next if reference.nil?
 
@@ -46,5 +46,16 @@ class ProductPrice::Import::Cavegest < Importer::Base
 
   def volume_ml(value)
     value.to_s[/\d+/].to_i * 10
+  end
+
+  def raw_file_content
+    File.read(path, encoding: 'iso-8859-1:utf-8')
+  end
+
+  def clean_csv
+    lines = raw_file_content.lines
+    headers_index = lines.index { |line| line.match?(/\ARef\b/)}
+
+    lines[headers_index..].join
   end
 end
