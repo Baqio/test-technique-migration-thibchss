@@ -30,4 +30,15 @@ module Importer::Normalization
   def decimal(value)
     value.to_s.to_f
   end
+
+  def phone(value, country_code)
+    value = text(value)
+
+    return nil if value.blank?
+
+    phone_number = Phonelib.parse(value, country_code ||= "FR").full_e164
+    return nil if phone_number.blank?
+
+    phone_number
+  end
 end
