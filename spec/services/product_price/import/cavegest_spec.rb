@@ -69,4 +69,13 @@ RSpec.describe ProductPrice::Import::Cavegest do
 
     expect(products.pluck(:color)).to match_array(['blanc', 'blanc'])
   end
+
+  it 'does not create a ProductPrice if there is no price' do
+    product = Product.find_by(reference: 'LANM3')
+    product_prices = ProductPrice.where(product: product)
+    product_price_salon = product_prices.find_by(grid_code: 'SALON')
+
+    expect(product_price_salon).to be_nil
+    expect(product_prices.pluck(:amount_ht)).not_to include(0.0)
+  end
 end

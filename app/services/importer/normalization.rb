@@ -49,6 +49,7 @@ module Importer::Normalization
   def volume_ml(value)
     value = (value.to_s[/\d+(?:[.,]\d+)?/].to_f * 10).round
 
+    # TODO: Find solution for this situation or include it in `notes de reprise`
     return nil if value == 60
 
     value
