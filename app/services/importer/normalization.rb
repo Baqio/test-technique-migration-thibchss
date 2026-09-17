@@ -28,7 +28,7 @@ module Importer::Normalization
   end
 
   def decimal(value)
-    value.to_s.to_f
+    value.to_s.gsub(',', '.').to_f
   end
 
   def phone(value, country_code)
