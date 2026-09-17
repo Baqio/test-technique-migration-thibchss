@@ -14,4 +14,5 @@ gem "phonelib"
 group :development, :test do
   gem "pry"
   gem "rspec", "~> 3.13"
+  gem "database_cleaner"
 end

@@ -5,46 +5,89 @@ class ProductPrice::Import::Cavegest < Importer::Base
   GRID_CODES = %w[DEPC CHR EXPO PART SALON].freeze
 
   def call
-    imported = 0
+    products = []
 
-    CSV.parse(File.read(path), headers: true, col_sep: COLUMN_SEP).each do |row|
+    CSV.parse(clean_csv, headers: true, col_sep: COLUMN_SEP).each do |row|
       reference = N.text(row["Ref"])
-      next if reference.nil?
+      next if should_skip?(reference)
 
-      product = Product.create!(
+      product = Product.new(
         reference: reference,
-        name:      N.text(row["Désignation"]),
-        color:     N.text(row["Couleur"]),
-        volume_ml: volume_ml(row["Contenant"]),
-        vat_rate:  N.decimal(row["TVA"]),
-        stock:     N.decimal(row["Stock"]).to_i
+        name: N.text(row["Désignation"]),
+        color: N.text(row["Couleur"])&.downcase,
+        volume_ml: N.volume_ml(row["Contenant"]),
+        vat_rate: N.decimal(row["TVA"]),
+        stock: N.decimal(row["Stock"]).to_i
       )
 
-      import_prices(product, row)
+      products << product
+
+      build_product_prices(product, row)
+    end
+
+    imported = 0
+    not_imported = []
+
+    products.each do |product|
+      if product.valid?
+        product.save!
+        save_product_prices!(product)
+
       imported += 1
+      else
+        not_imported << product
+      end
     end
 
     puts "#{imported} produits importés"
+    puts "#{not_imported.size} produits non importés"
   end
 
   private
 
-  def import_prices(product, row)
-    GRID_CODES.each do |grid_code|
+  def build_product_prices(product, row)
+    product_prices[product.reference] = 
+      GRID_CODES.map do |grid_code|
       amount = N.decimal(row[grid_code])
 
       # La grille EXPO est saisie en TTC dans CaveGest, on stocke du HT.
-      amount /= 1.2 if grid_code == "EXPO"
+        amount /= (1 + (product.vat_rate / 100)) if grid_code == "EXPO"
 
-      ProductPrice.create!(
-        product:   product,
+        # TODO: Add warning for this
+        next if amount.zero?
+
+        ProductPrice.new(
         grid_code: grid_code,
         amount_ht: amount.round(2)
       )
-    end
+      end.compact
   end
 
-  def volume_ml(value)
-    value.to_s[/\d+/].to_i * 10
+  def raw_file_content
+    File.read(path, encoding: 'iso-8859-1:utf-8')
+  end
+
+  def clean_csv
+    lines = raw_file_content.lines
+    headers_index = lines.index { |line| line.match?(/\ARef\b/)}
+
+    lines[headers_index..].join
+  end
+
+  def should_skip?(reference)
+    reference.nil? ||
+      reference.start_with?('---') ||
+        reference.include?('TOTAL')
+  end
+
+  def product_prices
+    @product_prices ||= {}
+  end
+
+  def save_product_prices!(product)
+    product_prices[product.reference].each do |product_price|
+      product_price.product = product
+      product_price.save!
+    end
   end
 end

@@ -28,7 +28,7 @@ module Importer::Normalization
   end
 
   def decimal(value)
-    value.to_s.to_f
+    value.to_s.gsub(',', '.').to_f
   end
 
   def phone(value, country_code)
@@ -44,5 +44,14 @@ module Importer::Normalization
 
   def tax_number(value)
     text(value)&.delete(' ')
+  end
+
+  def volume_ml(value)
+    value = (value.to_s[/\d+(?:[.,]\d+)?/].to_f * 10).round
+
+    # TODO: Find solution for this situation or include it in `notes de reprise`
+    return nil if value == 60
+
+    value
   end
 end
