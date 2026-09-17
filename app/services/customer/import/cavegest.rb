@@ -9,16 +9,18 @@ class Customer::Import::Cavegest < Importer::Base
   }.freeze
 
   def call
-    customers = []
-
     sheet.parse.each do |row|
-      next if row[indexes.reference] == 'TOTAL' || row.all?(&:blank?)
+      reference = row[indexes.reference]
+      next if reference == 'TOTAL' || row.all?(&:blank?)
       
-      customers << Customer.new(
+      customer = Customer.find_or_initialize_by(reference: reference)
+
+      customer.assign_attributes(
         reference: N.text(row[indexes.reference]),
         last_name: N.text(row[indexes.last_name]),
         first_name: N.text(row[indexes.first_name]),
-        company_name: company_name(row),
+        # TODO: Removed the fallback, put it in the audit as agregated datas, no info if need/necessite fallback
+        company_name: N.text(row[indexes.company_name]),
         email: N.text(row[indexes.email]),
         phone: N.phone(row[indexes.phone], N.country_code(row[indexes.country_code])),
         mobile: N.phone(row[indexes.mobile], N.country_code(row[indexes.country_code])),
