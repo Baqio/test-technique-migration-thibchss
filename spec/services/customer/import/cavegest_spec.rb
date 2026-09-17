@@ -1,7 +1,7 @@
 require "spec_helper"
 
 RSpec.describe Customer::Import::Cavegest do
-  before { described_class.new(data_path("export_clients_cavegest.xlsx")).call }
+  before(:all) { described_class.new(data_path("export_clients_cavegest.xlsx")).call }
 
   it "keeps the leading zero of postal codes" do
     expect(Customer.find_by(reference: "T00022").zip).to eq("01000")
