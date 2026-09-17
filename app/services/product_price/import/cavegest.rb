@@ -15,7 +15,7 @@ class ProductPrice::Import::Cavegest < Importer::Base
         reference: reference,
         name: N.text(row["Désignation"]),
         color: N.text(row["Couleur"])&.downcase,
-        volume_ml: volume_ml(row["Contenant"]),
+        volume_ml: N.volume_ml(row["Contenant"]),
         vat_rate: N.decimal(row["TVA"]),
         stock: N.decimal(row["Stock"]).to_i
       )
@@ -58,10 +58,6 @@ class ProductPrice::Import::Cavegest < Importer::Base
         amount_ht: amount.round(2)
       )
     end
-  end
-
-  def volume_ml(value)
-    value.to_s[/\d+/].to_i * 10
   end
 
   def raw_file_content

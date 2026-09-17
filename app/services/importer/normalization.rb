@@ -45,4 +45,12 @@ module Importer::Normalization
   def tax_number(value)
     text(value)&.delete(' ')
   end
+
+  def volume_ml(value)
+    value = (value.to_s[/\d+(?:[.,]\d+)?/].to_f * 10).round
+
+    return nil if value == 60
+
+    value
+  end
 end
