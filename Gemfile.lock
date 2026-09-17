@@ -28,6 +28,12 @@ GEM
     countries (8.1.0)
       unaccent (~> 0.3)
     csv (3.3.6)
+    database_cleaner (2.1.0)
+      database_cleaner-active_record (>= 2, < 3)
+    database_cleaner-active_record (2.2.2)
+      activerecord (>= 5.a)
+      database_cleaner-core (~> 2.0)
+    database_cleaner-core (2.1.0)
     diff-lcs (1.6.2)
     drb (2.2.3)
     i18n (1.15.2)
@@ -108,6 +114,7 @@ DEPENDENCIES
   activesupport (~> 7.1)
   countries
   csv
+  database_cleaner
   pg (~> 1.5)
   phonelib
   pry
