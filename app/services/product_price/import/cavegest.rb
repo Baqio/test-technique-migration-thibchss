@@ -51,7 +51,7 @@ class ProductPrice::Import::Cavegest < Importer::Base
       amount = N.decimal(row[grid_code])
 
       # La grille EXPO est saisie en TTC dans CaveGest, on stocke du HT.
-      amount /= 1.2 if grid_code == "EXPO"
+        amount /= (1 + (product.vat_rate / 100)) if grid_code == "EXPO"
 
         ProductPrice.new(
         grid_code: grid_code,
