@@ -14,7 +14,7 @@ class ProductPrice::Import::Cavegest < Importer::Base
       product = Product.new(
         reference: reference,
         name: N.text(row["Désignation"]),
-        color: N.text(row["Couleur"]),
+        color: N.text(row["Couleur"])&.downcase,
         volume_ml: volume_ml(row["Contenant"]),
         vat_rate: N.decimal(row["TVA"]),
         stock: N.decimal(row["Stock"]).to_i
