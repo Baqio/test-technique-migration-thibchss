@@ -5,26 +5,39 @@ class ProductPrice::Import::Cavegest < Importer::Base
   GRID_CODES = %w[DEPC CHR EXPO PART SALON].freeze
 
   def call
-    imported = 0
+    products = []
 
     CSV.parse(clean_csv, headers: true, col_sep: COLUMN_SEP).each do |row|
       reference = N.text(row["Ref"])
       next if should_skip?(reference)
 
-      product = Product.create!(
+      product = Product.new(
         reference: reference,
-        name:      N.text(row["Désignation"]),
-        color:     N.text(row["Couleur"]),
+        name: N.text(row["Désignation"]),
+        color: N.text(row["Couleur"]),
         volume_ml: volume_ml(row["Contenant"]),
-        vat_rate:  N.decimal(row["TVA"]),
-        stock:     N.decimal(row["Stock"]).to_i
+        vat_rate: N.decimal(row["TVA"]),
+        stock: N.decimal(row["Stock"]).to_i
       )
 
-      import_prices(product, row)
+      products << product
+
+    end
+
+    imported = 0
+    not_imported = []
+
+    products.each do |product|
+      if product.valid?
+        product.save!
       imported += 1
+      else
+        not_imported << product
+      end
     end
 
     puts "#{imported} produits importés"
+    puts "#{not_imported.size} produits non importés"
   end
 
   private
