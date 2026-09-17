@@ -22,6 +22,7 @@ class ProductPrice::Import::Cavegest < Importer::Base
 
       products << product
 
+      build_product_prices(product, row)
     end
 
     imported = 0
@@ -30,6 +31,8 @@ class ProductPrice::Import::Cavegest < Importer::Base
     products.each do |product|
       if product.valid?
         product.save!
+        save_product_prices!(product)
+
       imported += 1
       else
         not_imported << product
@@ -42,15 +45,15 @@ class ProductPrice::Import::Cavegest < Importer::Base
 
   private
 
-  def import_prices(product, row)
-    GRID_CODES.each do |grid_code|
+  def build_product_prices(product, row)
+    product_prices[product.reference] = 
+      GRID_CODES.map do |grid_code|
       amount = N.decimal(row[grid_code])
 
       # La grille EXPO est saisie en TTC dans CaveGest, on stocke du HT.
       amount /= 1.2 if grid_code == "EXPO"
 
-      ProductPrice.create!(
-        product:   product,
+        ProductPrice.new(
         grid_code: grid_code,
         amount_ht: amount.round(2)
       )
@@ -76,5 +79,16 @@ class ProductPrice::Import::Cavegest < Importer::Base
     reference.nil? ||
       reference.start_with?('---') ||
         reference.include?('TOTAL')
+  end
+
+  def product_prices
+    @product_prices ||= {}
+  end
+
+  def save_product_prices!(product)
+    product_prices[product.reference].each do |product_price|
+      product_price.product = product
+      product_price.save!
+    end
   end
 end
