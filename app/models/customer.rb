@@ -5,10 +5,14 @@ class Customer < ActiveRecord::Base
   validates :kind, inclusion: { in: KINDS }
   validate  :name_present
 
+  def name_present?
+    company_name.present? || first_name.present? || last_name.present?
+  end
+
   private
 
   def name_present
-    return if company_name.present? || first_name.present? || last_name.present?
+    return if name_present?
 
     errors.add(:base, "ni raison sociale, ni nom, ni prénom")
   end
